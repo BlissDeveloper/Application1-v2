@@ -249,7 +249,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/imageViewNetworkLogs"
+                android:id="@+id/imageViewLocationLogs"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:padding="24dp"
@@ -283,6 +283,7 @@
             android:layout_height="match_parent">
 
             <ImageView
+                android:id="@+id/imageViewNetworkLogs"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="8dp"

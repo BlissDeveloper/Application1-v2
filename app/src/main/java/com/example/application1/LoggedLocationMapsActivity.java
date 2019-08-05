@@ -16,6 +16,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -24,6 +25,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.nio.charset.CoderMalfunctionError;
 
 import javax.annotation.Nullable;
 
@@ -79,8 +82,8 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
         locationsRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if(!queryDocumentSnapshots.isEmpty()) {
-                    LatLngBounds.Builder builder  = new LatLngBounds.Builder();
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
                     for (DocumentSnapshot d : queryDocumentSnapshots) {
                         double lat, longti;
                         lat = d.getDouble("latitude");
@@ -90,9 +93,44 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
                         String email = d.getString("email");
                         Log.d("Avery", email);
                         LatLng latLng = new LatLng(lat, longti);
-                        builder.include(latLng);
-                        mMap.addMarker(new MarkerOptions().position(latLng).title(email)).showInfoWindow();
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(email));
+                        marker.showInfoWindow();
+                        builder.include(marker.getPosition());
+
+
+
+
+                        /*
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+//the include method will calculate the min and max bound.
+builder.include(marker1.getPosition());
+builder.include(marker2.getPosition());
+builder.include(marker3.getPosition());
+builder.include(marker4.getPosition());
+
+LatLngBounds bounds = builder.build();
+
+int width = getResources().getDisplayMetrics().widthPixels;
+int height = getResources().getDisplayMetrics().heightPixels;
+int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
+
+CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+
+mMap.animateCamera(cu);
+                         */
                     }
+
+                    LatLngBounds bounds = builder.build();
+
+                    int width = getResources().getDisplayMetrics().widthPixels;
+                    int height = getResources().getDisplayMetrics().heightPixels;
+                    int padding = (int) (width * 0.10);
+
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                    mMap.animateCamera(cameraUpdate);
+
+
                 }
             }
         });

@@ -90,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
     private ImageView imageViewGallery;
     private ImageView imageViewMap;
     private ImageView imageViewNetworkLogs;
+    private ImageView imageViewLocationLogs;
 
     private CardView cardViewCamera;
 
@@ -146,6 +147,7 @@ public class HomeActivity extends AppCompatActivity {
         imageViewGallery = findViewById(R.id.imageViewGallery);
         imageViewMap = findViewById(R.id.imageViewMap);
         imageViewNetworkLogs = findViewById(R.id.imageViewNetworkLogs);
+        imageViewLocationLogs = findViewById(R.id.imageViewLocationLogs);
 
         cardViewCamera = findViewById(R.id.cardView);
 
@@ -155,6 +157,15 @@ public class HomeActivity extends AppCompatActivity {
         //Location
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(HomeActivity.this);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        imageViewLocationLogs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, LocationLogActivity.class);
+                startActivity(intent);
+
+            }
+        });
 
         imageViewMap.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -531,6 +542,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void insertLocationInformation(double lat, double longti) {
+        DateUtils dateUtils = new DateUtils();
+
         Map<String, Object> map = new ArrayMap<>();
         map.put("email", mAuth.getCurrentUser().getEmail());
         map.put("latitude", lat);
@@ -538,6 +551,7 @@ public class HomeActivity extends AppCompatActivity {
         map.put("date", getCurrentDate());
         map.put("time", getCurrentTime());
         map.put("user_id", currentUserID);
+        map.put("timestamp", dateUtils.getCurrentTimestamp());
 
         locationsRef.document().set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
