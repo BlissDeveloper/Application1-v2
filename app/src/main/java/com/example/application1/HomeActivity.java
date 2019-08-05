@@ -156,6 +156,14 @@ public class HomeActivity extends AppCompatActivity {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(HomeActivity.this);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        imageViewMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, LoggedLocationMapsActivity.class);
+                startActivity(intent);
+            }
+        });
+
         imageViewNetworkLogs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
