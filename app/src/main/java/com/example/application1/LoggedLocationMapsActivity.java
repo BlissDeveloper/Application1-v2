@@ -58,13 +58,6 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
     }
 
     @Override
@@ -97,37 +90,10 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
                         marker.showInfoWindow();
                         builder.include(marker.getPosition());
 
-
-
-
-                        /*
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
-//the include method will calculate the min and max bound.
-builder.include(marker1.getPosition());
-builder.include(marker2.getPosition());
-builder.include(marker3.getPosition());
-builder.include(marker4.getPosition());
-
-LatLngBounds bounds = builder.build();
-
-int width = getResources().getDisplayMetrics().widthPixels;
-int height = getResources().getDisplayMetrics().heightPixels;
-int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
-
-CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
-
-mMap.animateCamera(cu);
-                         */
                     }
-
                     LatLngBounds bounds = builder.build();
 
-                    int width = getResources().getDisplayMetrics().widthPixels;
-                    int height = getResources().getDisplayMetrics().heightPixels;
-                    int padding = (int) (width * 0.10);
-
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 25, 25, 5);
                     mMap.animateCamera(cameraUpdate);
 
 

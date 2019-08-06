@@ -1,5 +1,6 @@
 package com.example.application1.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -24,6 +26,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -74,6 +77,7 @@ public class FragmentRegister extends Fragment {
         this.progressBarRegister = (ProgressBar) this.mView.findViewById(R.id.progressBarRegister);
         this.buttonLogin = (Button) this.mView.findViewById(R.id.buttonHaveAccount);
         this.buttonRegister = (Button) this.mView.findViewById(R.id.buttonRegister);
+
         this.buttonLogin.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 FragmentRegister.this.fragmentRegisterListener.changeV(FragmentRegister.this.fragmentLogin);
@@ -82,9 +86,9 @@ public class FragmentRegister extends Fragment {
         this.buttonRegister.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 if (FragmentRegister.this.hasValidInputs()) {
-                    Toast.makeText(FragmentRegister.this.getActivity(), "Inputs are valid!", Toast.LENGTH_LONG).show();
-                    FragmentRegister.this.progressBarRegister.setVisibility(View.VISIBLE);
-                    FragmentRegister.this.registerUser();
+                    progressBarRegister.setVisibility(View.VISIBLE);
+                    clearAll();
+                    registerUser();
                 }
             }
         });
@@ -94,6 +98,23 @@ public class FragmentRegister extends Fragment {
     public void onStart() {
         super.onStart();
         this.progressBarRegister.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof FragmentRegisterListener) {
+            fragmentRegisterListener = (FragmentRegisterListener) context;
+        } else {
+            throw new RuntimeException("Must implemet fragment register listener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        fragmentRegisterListener = null;
     }
 
     public boolean hasValidInputs() {
@@ -151,7 +172,7 @@ public class FragmentRegister extends Fragment {
                     FragmentRegister.this.mAuth.signInWithEmailAndPassword(FragmentRegister.this.email, FragmentRegister.this.password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                FragmentRegister.this.insertUserDataIntoFirestore();
+                                insertUserDataIntoFirestore();
                                 return;
                             }
                             Log.e("Avery", task.getException().getMessage());
@@ -185,7 +206,6 @@ public class FragmentRegister extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(FragmentRegister.this.getActivity(), "Account created successfully!", Toast.LENGTH_SHORT).show();
-                    FragmentRegister.this.clearAll();
                     return;
                 }
                 Log.e("Avery", task.getException().getMessage());

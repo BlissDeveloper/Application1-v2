@@ -1,37 +1,22 @@
 package com.example.application1;
 
 public class Location {
-    String latitude, longtitude, email, date, time, user_id;
+    String email, date, time, user_id;
     int timestamp;
+    double latitude, longtitude;
 
 
     public Location() {
 
     }
 
-    public Location(String latitude, String longtitude, String email, String date, String time, String user_id, int timestamp) {
-        this.latitude = latitude;
-        this.longtitude = longtitude;
+    public Location(String email, String date, String time, String user_id, int timestamp, double latitude, double longtitude) {
         this.email = email;
         this.date = date;
         this.time = time;
         this.user_id = user_id;
         this.timestamp = timestamp;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
         this.latitude = latitude;
-    }
-
-    public String getLongtitude() {
-        return longtitude;
-    }
-
-    public void setLongtitude(String longtitude) {
         this.longtitude = longtitude;
     }
 
@@ -73,5 +58,21 @@ public class Location {
 
     public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongtitude() {
+        return longtitude;
+    }
+
+    public void setLongtitude(double longtitude) {
+        this.longtitude = longtitude;
     }
 }

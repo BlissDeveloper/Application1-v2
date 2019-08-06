@@ -51,7 +51,7 @@ public class FragmentLocationLog extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false);
         recyclerViewLocationLog.setLayoutManager(linearLayoutManager);
 
-
+        loadLocationLogs();
 
         return mView;
     }
@@ -65,7 +65,10 @@ public class FragmentLocationLog extends Fragment {
                 new FirestoreRecyclerAdapter<Location, LocationLogViewHolder>(firestoreRecyclerOptions) {
             @Override
             protected void onBindViewHolder(@NonNull LocationLogViewHolder holder, int i, @NonNull Location model) {
-
+                holder.setLongtitude(model.getLongtitude());
+                holder.setLatitude(model.getLatitude());
+                holder.setDate(model.getDate(), model.getTime());
+                holder.setEmail(model.getEmail());
             }
 
             @NonNull

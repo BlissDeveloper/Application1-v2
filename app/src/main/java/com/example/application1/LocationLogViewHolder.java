@@ -23,19 +23,19 @@ public class LocationLogViewHolder extends RecyclerView.ViewHolder {
         textViewLocationDateAndTime = mView.findViewById(R.id.textViewLocationDateAndTime);
     }
 
-    public void setLatitude(String latitude) {
-
+    public void setLatitude(double latitude) {
+        textViewLocationLatitude.setText("Latitude: " + latitude);
     }
 
-    public void setLongtitude(String longtitude) {
-
+    public void setLongtitude(double longtitude) {
+        textViewLocationLongtitude.setText("Longtitude: " + longtitude);
     }
 
     public void setEmail(String email) {
-
+        textViewLocationUsername.setText(email);
     }
 
-    public void setDate(String date) {
-
+    public void setDate(String date, String time) {
+        textViewLocationDateAndTime.setText("Posted on: " + date + " at " + time);
     }
 }

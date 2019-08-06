@@ -4,10 +4,9 @@
 
     <item
         android:id="@+id/menu_sign_out"
-        android:icon="@drawable/icon_sign_out"
+        android:icon="@drawable/icon_exit"
         android:title=""
         app:showAsAction="always">
-
     </item>
 
 </menu>

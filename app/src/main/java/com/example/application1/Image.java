@@ -1,6 +1,9 @@
 package com.example.application1;
 
-public class Image {
+import java.io.Serializable;
+import java.io.SerializablePermission;
+
+public class Image implements Serializable {
     String full_name, image_url, timestamo, user_id;
 
     public Image() {

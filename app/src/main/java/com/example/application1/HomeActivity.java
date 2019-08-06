@@ -8,10 +8,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +26,8 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.os.strictmode.CleartextNetworkViolation;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -47,12 +51,16 @@ import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.LogDescriptor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -62,7 +70,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Permission;
 import java.text.SimpleDateFormat;
@@ -108,6 +118,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+    private FusedLocationProviderApi fusedLocationProviderApi;
 
     private LocationManager locationManager;
 
@@ -115,6 +127,7 @@ public class HomeActivity extends AppCompatActivity {
     private WifiManager wifiManager;
     private WifiInfo connection;
     private TelephonyManager telephonyManager;
+    private File imageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -263,7 +276,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        imageViewCamera.setVisibility(View.GONE);
+
+        imageFile = null;
     }
 
     @Override
@@ -288,10 +302,17 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == IMAGE_CAPTURE_REQUEST && resultCode == RESULT_OK && data != null) {
-            Bundle extras = data.getExtras();
-            Bitmap imageThumbnail = (Bitmap) extras.get("data");
+            try {
+                progressDialog.setTitle("Saving image...");
+                progressDialog.show();
+                Bundle extras = data.getExtras();
+                Bitmap imageThumbnail = (Bitmap) extras.get("data");
+                uploadImageToStorage(imageThumbnail);
 
-            saveImage(imageThumbnail);
+            } catch (Exception e) {
+                Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+
 
         } else if (resultCode == LOCATION_SETTINGS_REQUEST) {
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -350,28 +371,29 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public void saveImage(Bitmap image) {
-        UUID uuid = UUID.randomUUID();
-        this.progressDialog.setTitle("Saving image...");
-        this.progressDialog.show();
-        final StorageReference storageReference = imagesRef.child(uuid.toString());
+
+    public void uploadImageToStorage(final Bitmap image) {
+        UsefulClass usefulClass = new UsefulClass();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 75, baos);
+        image.compress(Bitmap.CompressFormat.PNG, 50, baos);
         byte[] data = baos.toByteArray();
+        String fileName = usefulClass.getUUID() + ".jpg";
 
-        storageReference.putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        final StorageReference tempRef = imagesRef.child(fileName);
+        tempRef.putBytes(data).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful()) {
-                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    tempRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            uploadImageToFirestore(uri.toString());
+                            String imageURL = uri.toString();
+                            uploadImageToFirestore(imageURL);
                         }
                     });
                 } else {
-                    Log.e("Avery", task.getException().getMessage());
+                    Toast.makeText(HomeActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                 }
             }
@@ -388,13 +410,6 @@ public class HomeActivity extends AppCompatActivity {
                     String full_name = first_name + " " + last_name;
 
                     Map<String, Object> map = new ArrayMap<>();
-
-                    /*
-                      imageMap.put("user_id", ImagePreviewActivity.this.currentUserID);
-                    imageMap.put("image_url", uri);
-                    imageMap.put("timestamp", timeStamp);
-                    imageMap.put("full_name", fullName);
-                     */
                     map.put("user_id", currentUserID);
                     map.put("image_url", uri);
                     map.put("timestamp", getCurrentTimestamp());
@@ -404,21 +419,23 @@ public class HomeActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(HomeActivity.this, "", Toast.LENGTH_SHORT).show();
-                                openCamera();
+                                Toast.makeText(HomeActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
                             } else {
-
+                                Toast.makeText(HomeActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                             }
+                            progressDialog.dismiss();
                         }
                     });
                 } else {
                     Log.e("Avery", "Documentsnapshot does not exits");
+                    progressDialog.dismiss();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e("Avery", e.getMessage());
+                progressDialog.dismiss();
             }
         });
     }
@@ -430,7 +447,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch (i) {
                     case Dialog.BUTTON_POSITIVE:
-                        ProgressDialog progressDialog = new ProgressDialog(HomeActivity.this);
+                        final ProgressDialog progressDialog = new ProgressDialog(HomeActivity.this);
                         progressDialog.setTitle("Sending network info...");
                         progressDialog.show();
                         //Yes
@@ -466,6 +483,7 @@ public class HomeActivity extends AppCompatActivity {
                                         map.put("cid", cid);
                                         map.put("date", dateUtils.getCurrentDate());
                                         map.put("time", dateUtils.getCurrentTime());
+                                        map.put("timestamp", dateUtils.getCurrentTimestamp());
 
                                         networksRef.document().set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
@@ -475,14 +493,20 @@ public class HomeActivity extends AppCompatActivity {
                                                 } else {
                                                     Log.e("Avery", task.getException().getMessage());
                                                 }
+                                                progressDialog.dismiss();
                                             }
                                         });
+                                    } else {
+                                        progressDialog.dismiss();
                                     }
+                                } else {
+                                    progressDialog.dismiss();
                                 }
                             }
 
+                        } else {
+                            progressDialog.dismiss();
                         }
-                        progressDialog.dismiss();
                         break;
                     case Dialog.BUTTON_NEGATIVE:
                         //No
@@ -491,7 +515,8 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         };
-        builder.setPositiveButton("Yes", clickListener)
+        builder.setTitle("Send Network Info?")
+                .setPositiveButton("Yes", clickListener)
                 .setNegativeButton("No", clickListener)
                 .show();
     }
@@ -517,27 +542,56 @@ public class HomeActivity extends AppCompatActivity {
 
     public void sendCurrentLocation() {
         //For progress
+
         progressDialog.setTitle("Sending location...");
         progressDialog.show();
-
         try {
             if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                fusedLocationProviderClient.getLocationAvailability().addOnSuccessListener(new OnSuccessListener<LocationAvailability>() {
                     @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            insertLocationInformation(location.getLatitude(), location.getLongitude());
+                    public void onSuccess(LocationAvailability locationAvailability) {
+                        if (locationAvailability.isLocationAvailable()) {
+                            Log.d("Avery", "Location avaibled");
+                            try {
+                                if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                                    fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                                        @Override
+                                        public void onSuccess(Location location) {
+                                            if (location != null) {
+                                                insertLocationInformation(location.getLatitude(), location.getLongitude());
+                                            } else {
+                                                Toast.makeText(HomeActivity.this, "Fused location is null", Toast.LENGTH_SHORT).show();
+                                                progressDialog.dismiss();
+                                            }
+                                        }
+                                    });
+                                }
+                            } catch (Exception e) {
+                                Toast.makeText(HomeActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                progressDialog.dismiss();
+                            }
                         } else {
-                            Toast.makeText(HomeActivity.this, "Fused location is null", Toast.LENGTH_SHORT).show();
-                            progressDialog.dismiss();
+                            Log.e("Avery", "Location not yet avaiable");
+
+                            locationRequest = LocationRequest.create();
+                            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                            locationRequest.setInterval(120000);
+                            locationRequest.setFastestInterval(30000);
+
+                            Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
+                            PendingIntent pendingIntent = PendingIntent.getActivity(HomeActivity.this, LOCATION_REQUEST, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            fusedLocationProviderClient.requestLocationUpdates(locationRequest, pendingIntent);
                         }
                     }
                 });
+            } else {
+                progressDialog.dismiss();
             }
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
         }
+
 
     }
 
@@ -564,6 +618,15 @@ public class HomeActivity extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         });
+    }
+
+    public boolean areLocationPermissionGranted() {
+        if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String getCurrentTimestamp() {
@@ -599,8 +662,32 @@ public class HomeActivity extends AppCompatActivity {
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, IMAGE_CAPTURE_REQUEST);
+
+            imageFile = null;
+
+            try {
+                imageFile = createImageFile();
+            } catch (Exception e) {
+
+            }
+
+            if (imageFile != null) {
+                startActivityForResult(takePictureIntent, IMAGE_CAPTURE_REQUEST);
+            }
         }
+    }
+
+    private File createImageFile() throws IOException {
+        UsefulClass usefulClass = new UsefulClass();
+        String fileName = usefulClass.getUUID();
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        File image = File.createTempFile(
+                fileName,
+                ".jpg",
+                storageDir
+        );
+        return image;
     }
 
     public void requestCameraPermission() {
@@ -630,5 +717,6 @@ public class HomeActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
 
 }

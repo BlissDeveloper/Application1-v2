@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     tools:context=".Fragment.FragmentRegister">
 
     <ProgressBar
@@ -22,14 +23,12 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
         app:cardCornerRadius="4dp"
-        app:cardElevation="4dp"
+        app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,10 +52,10 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:inputType="textPersonName"
                     android:id="@+id/editTextFirstName"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -73,10 +72,10 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:inputType="textPersonName"
                     android:id="@+id/editTextLastName"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:inputType="textPersonName" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -142,10 +141,10 @@
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:inputType="textPassword"
                     android:id="@+id/editTextConfirmPassword"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:inputType="textPassword" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -154,35 +153,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginLeft="32dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="32dp"
-                android:layout_marginRight="32dp"
+                android:background="@drawable/ripple"
                 android:text="CREATE ACCOUNT"
+                android:textColor="@android:color/background_light"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textInputLayoutConfirmPass" />
+                app:layout_constraintTop_toBottomOf="@id/textInputLayoutConfirmPass"
+                android:elevation="4dp"
+                android:textStyle="bold"/>
 
             <Button
                 android:id="@+id/buttonHaveAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
-                android:layout_marginLeft="32dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="32dp"
-                android:layout_marginRight="32dp"
                 android:layout_marginBottom="8dp"
+                android:background="@drawable/ripple"
                 android:text="ALREADY HAVE AN ACCOUNT?"
+                android:textColor="@android:color/background_light"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/buttonRegister" />
+                app:layout_constraintTop_toBottomOf="@id/buttonRegister"
+                android:elevation="4dp"
+                android:textStyle="bold"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

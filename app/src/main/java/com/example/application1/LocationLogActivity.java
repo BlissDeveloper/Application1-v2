@@ -1,18 +1,28 @@
 package com.example.application1;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import com.example.application1.Fragment.FragmentLocationLog;
 
 public class LocationLogActivity extends AppCompatActivity {
+    private Toolbar toolbarLocationLog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_log);
+
+        toolbarLocationLog = findViewById(R.id.toolbarLocationLog);
+        setSupportActionBar(toolbarLocationLog);
+
+        getSupportActionBar().setTitle("Location Logs");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -21,5 +31,17 @@ public class LocationLogActivity extends AppCompatActivity {
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutLocationLog, new FragmentLocationLog());
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+
+                return false;
+        }
     }
 }

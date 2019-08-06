@@ -1,6 +1,7 @@
 package com.example.application1.Fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.application1.ClickedImageActivity;
 import com.example.application1.Image;
 import com.example.application1.ImageViewHolder;
 import com.example.application1.MainActivity;
@@ -66,9 +68,18 @@ public class FragmentGallery extends Fragment {
         FirestoreRecyclerOptions<Image> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Image>().setQuery(query, Image.class).build();
         FirestoreRecyclerAdapter<Image, ImageViewHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Image, ImageViewHolder>(firestoreRecyclerOptions) {
             @Override
-            protected void onBindViewHolder(@NonNull ImageViewHolder holder, int i, @NonNull Image model) {
+            protected void onBindViewHolder(@NonNull ImageViewHolder holder, int i, @NonNull final Image model) {
                 holder.setImage_url(model.getImage_url());
                 holder.setFull_name(model.getFull_name());
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getActivity(), ClickedImageActivity.class);
+                        intent.putExtra("image", model);
+                        startActivity(intent);
+                    }
+                });
             }
 
             @NonNull
