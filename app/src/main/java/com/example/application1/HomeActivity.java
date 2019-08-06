@@ -64,7 +64,12 @@ import com.google.api.LogDescriptor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -76,12 +81,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Permission;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public class HomeActivity extends AppCompatActivity {
@@ -244,7 +251,7 @@ public class HomeActivity extends AppCompatActivity {
                                 switch (i) {
                                     case Dialog.BUTTON_POSITIVE:
                                         //Send
-                                        sendCurrentLocation();
+                                        updateLocationStatus();
                                         break;
                                     case Dialog.BUTTON_NEGATIVE:
                                         dialogInterface.dismiss();
@@ -291,8 +298,26 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_sign_out:
-                signOutUser();
-                Log.d("Avery", "Logout");
+                AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+
+                Dialog.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case Dialog.BUTTON_POSITIVE:
+                                signOutUser();
+                                break;
+                            case Dialog.BUTTON_NEGATIVE:
+                                dialogInterface.dismiss();
+                                break;
+                        }
+                    }
+                };
+
+                builder.setTitle("Do you want to sign out?")
+                        .setPositiveButton("Yes", clickListener)
+                        .setNegativeButton("No", clickListener)
+                        .show();
                 return true;
             default:
                 return false;
@@ -540,11 +565,46 @@ public class HomeActivity extends AppCompatActivity {
         startActivityForResult(intent, LOCATION_SETTINGS_REQUEST);
     }
 
+    public void updateLocationStatus() {
+        progressDialog.setTitle("Sending location...");
+        progressDialog.show();
+        final Query query = locationsRef.whereEqualTo("user_id", currentUserID).whereEqualTo("is_latest", true);
+        final List<String> idList = new ArrayList<>();
+
+        query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    for (DocumentSnapshot d : queryDocumentSnapshots) {
+                        String id = d.getId();
+                        idList.add(id);
+                    }
+                    for(String s : idList) {
+                        Map<String, Object> map = new ArrayMap<>();
+                        map.put("is_latest", false);
+
+                        locationsRef.document(s).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    sendCurrentLocation();
+                                } else {
+                                    progressDialog.dismiss();
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    sendCurrentLocation();
+                }
+            }
+        });
+    }
+
     public void sendCurrentLocation() {
         //For progress
 
-        progressDialog.setTitle("Sending location...");
-        progressDialog.show();
+
         try {
             if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 fusedLocationProviderClient.getLocationAvailability().addOnSuccessListener(new OnSuccessListener<LocationAvailability>() {
@@ -606,6 +666,7 @@ public class HomeActivity extends AppCompatActivity {
         map.put("time", getCurrentTime());
         map.put("user_id", currentUserID);
         map.put("timestamp", dateUtils.getCurrentTimestamp());
+        map.put("is_latest", true);
 
         locationsRef.document().set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

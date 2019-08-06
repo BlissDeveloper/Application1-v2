@@ -1,10 +1,18 @@
 package com.example.application1.Fragment;
 
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,10 +27,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.application1.Chat;
 import com.example.application1.ChatHolder;
 import com.example.application1.DateUtils;
+import com.example.application1.HomeActivity;
 import com.example.application1.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -54,6 +66,15 @@ public class ChatFragment extends Fragment {
     private EditText editTextChatMessage;
     private ImageButton imageButtonSend;
 
+    private ImageView imageViewChatImage;
+    private ImageButton imageButtonCloseImage;
+    private ImageButton imageButtonSelectImage;
+
+    private static final int PHOTO_PERMISSION_CODE = 9;
+    private static final int PHOTO_CHOOSER_CODE = 5;
+
+    private Uri uri;
+
     DateUtils dateUtils;
 
     public ChatFragment() {
@@ -81,10 +102,29 @@ public class ChatFragment extends Fragment {
         editTextChatMessage = mView.findViewById(R.id.editTextChatMessage);
         imageButtonSend = mView.findViewById(R.id.imageButtonSend);
 
+        imageViewChatImage = mView.findViewById(R.id.imageViewChatImage);
+        imageButtonCloseImage = mView.findViewById(R.id.imageButtonCloseImage);
+
+        imageButtonSelectImage = mView.findViewById(R.id.imageButtonSelectImage);
+        imageViewChatImage.setVisibility(View.GONE);
+        imageButtonCloseImage.setVisibility(View.GONE);
+
+        imageButtonSelectImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isPermissionGrantedForPhotos()) {
+                    openGallery();
+                } else {
+                    requestPhotoAccess();
+                }
+            }
+        });
+
         imageButtonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String message = editTextChatMessage.getText().toString();
+                editTextChatMessage.setText(null);
                 sendMessage(message);
             }
         });
@@ -115,6 +155,34 @@ public class ChatFragment extends Fragment {
         loadChats();
 
         return mView;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PHOTO_PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openGallery();
+        } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getActivity(), "Device storage access is required for this feature", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PHOTO_CHOOSER_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            uri = data.getData();
+          if(uri == null) {
+              Log.d("Avery", "Uri empty");
+          }
+          else {
+              imageViewChatImage.setImageURI(uri);
+          }
+        } else {
+            Log.e("Avery", "On activity error");
+        }
     }
 
     public void loadChats() {
@@ -161,7 +229,6 @@ public class ChatFragment extends Fragment {
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Log.d("Avery", "Chat sent");
-                                editTextChatMessage.setText(null);
                             }
                         }
                     });
@@ -173,6 +240,22 @@ public class ChatFragment extends Fragment {
                 Log.e("Avery", e.getMessage());
             }
         });
+    }
+
+    public void requestPhotoAccess() {
+        // ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.ACCESS_WIFI_STATE}, WIFI_STATE_REQUEST);
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PHOTO_PERMISSION_CODE);
+    }
+
+    public boolean isPermissionGrantedForPhotos() {
+        return ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public void openGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PHOTO_CHOOSER_CODE);
     }
 
 }

@@ -18,6 +18,17 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <ImageButton
+        android:id="@+id/imageButtonSelectImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:backgroundTint="@android:color/transparent"
+        android:src="@drawable/icon_select_image"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextChatMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editTextChatMessage" />
+
     <EditText
         android:id="@+id/editTextChatMessage"
         android:layout_width="0dp"
@@ -26,11 +37,12 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/rounded_edit_text"
+        android:elevation="4dp"
         android:hint="Type your message..."
         android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/imageButtonSend"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/imageButtonSelectImage" />
 
     <ImageButton
         android:id="@+id/imageButtonSend"
@@ -42,7 +54,30 @@
         app:layout_constraintBottom_toBottomOf="@+id/editTextChatMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/editTextChatMessage" />
-    
+
+    <ImageView
+        android:id="@+id/imageViewChatImage"
+        android:layout_width="120dp"
+        android:layout_height="85dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextChatMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_dark" />
+
+    <ImageButton
+        android:id="@+id/imageButtonCloseImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:backgroundTint="@android:color/background_dark"
+        android:elevation="8dp"
+        android:src="@drawable/icon_cross_white"
+        app:layout_constraintBottom_toTopOf="@+id/imageViewChatImage"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewChatImage"
+        app:layout_constraintTop_toTopOf="@+id/imageViewChatImage" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

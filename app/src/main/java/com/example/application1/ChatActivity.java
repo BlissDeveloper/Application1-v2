@@ -1,10 +1,12 @@
 package com.example.application1;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import com.example.application1.Fragment.ChatFragment;
 
@@ -31,5 +33,16 @@ public class ChatActivity extends AppCompatActivity {
     public void loadFragment() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutChat, new ChatFragment());
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return false;
+        }
     }
 }

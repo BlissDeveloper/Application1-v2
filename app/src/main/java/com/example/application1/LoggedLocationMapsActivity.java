@@ -24,6 +24,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.nio.charset.CoderMalfunctionError;
@@ -72,10 +73,11 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
     }
 
     public void loadMarkers() {
-        locationsRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        Query query = locationsRef.whereEqualTo("is_latest", true);
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if (!queryDocumentSnapshots.isEmpty()) {
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (!queryDocumentSnapshots.isEmpty() && e == null) {
                     LatLngBounds.Builder builder = new LatLngBounds.Builder();
                     for (DocumentSnapshot d : queryDocumentSnapshots) {
                         double lat, longti;
@@ -89,14 +91,11 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
                         Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(email));
                         marker.showInfoWindow();
                         builder.include(marker.getPosition());
-
                     }
                     LatLngBounds bounds = builder.build();
 
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 25, 25, 5);
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 25, 25, 10);
                     mMap.animateCamera(cameraUpdate);
-
-
                 }
             }
         });
