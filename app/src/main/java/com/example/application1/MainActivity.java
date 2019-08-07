@@ -46,6 +46,6 @@ public class MainActivity extends AppCompatActivity implements FragmentLoginList
     }
 
     public void changeV(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutMain, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.frameLayoutMain, fragment).commitAllowingStateLoss();
     }
 }

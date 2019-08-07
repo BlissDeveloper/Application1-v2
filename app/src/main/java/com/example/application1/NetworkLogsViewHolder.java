@@ -34,7 +34,7 @@ public class NetworkLogsViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setBssid(String bssid) {
-        textViewBSSID.setText(bssid);
+        textViewBSSID.setText("BSSID: " + bssid);
     }
 
     public void setUsername(String username) {
@@ -42,19 +42,19 @@ public class NetworkLogsViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setCid(int cid) {
-        textViewCID.setText(String.valueOf(cid));
+        textViewCID.setText("CID: " + String.valueOf(cid));
     }
 
     public void setLac(int lac) {
-        textViewLAC.setText(String.valueOf(lac));
+        textViewLAC.setText("LAC: " + String.valueOf(lac));
     }
 
     public void setMcc(int mcc) {
-        textViewMCC.setText(String.valueOf(mcc));
+        textViewMCC.setText("MCC: " + String.valueOf(mcc));
     }
 
     public void setMnc(int mnc) {
-        textViewMNC.setText(String.valueOf(mnc));
+        textViewMNC.setText("MNC: " + String.valueOf(mnc));
     }
 
     public void setDateAndTime(String date, String time) {

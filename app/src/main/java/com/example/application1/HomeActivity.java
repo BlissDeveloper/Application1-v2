@@ -579,7 +579,7 @@ public class HomeActivity extends AppCompatActivity {
                         String id = d.getId();
                         idList.add(id);
                     }
-                    for(String s : idList) {
+                    for (String s : idList) {
                         Map<String, Object> map = new ArrayMap<>();
                         map.put("is_latest", false);
 
@@ -603,7 +603,6 @@ public class HomeActivity extends AppCompatActivity {
 
     public void sendCurrentLocation() {
         //For progress
-
 
         try {
             if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -728,13 +727,12 @@ public class HomeActivity extends AppCompatActivity {
 
             try {
                 imageFile = createImageFile();
+                startActivityForResult(takePictureIntent, IMAGE_CAPTURE_REQUEST);
             } catch (Exception e) {
 
             }
 
-            if (imageFile != null) {
-                startActivityForResult(takePictureIntent, IMAGE_CAPTURE_REQUEST);
-            }
+
         }
     }
 

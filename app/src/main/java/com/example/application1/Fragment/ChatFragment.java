@@ -174,12 +174,12 @@ public class ChatFragment extends Fragment {
 
         if (requestCode == PHOTO_CHOOSER_CODE && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
-          if(uri == null) {
-              Log.d("Avery", "Uri empty");
-          }
-          else {
-              imageViewChatImage.setImageURI(uri);
-          }
+            if (uri == null) {
+                Log.e("Avery", "Uri empty");
+            } else {
+                Log.d("Avery", "Uri not empty");
+                imageViewChatImage.setImageURI(uri);
+            }
         } else {
             Log.e("Avery", "On activity error");
         }
@@ -188,7 +188,7 @@ public class ChatFragment extends Fragment {
     public void loadChats() {
         Query query = chatsRef.orderBy("timestamp", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<Chat> options = new FirestoreRecyclerOptions.Builder<Chat>().setQuery(query, Chat.class).build();
-        FirestoreRecyclerAdapter<Chat, ChatHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Chat, ChatHolder>(options) {
+        final FirestoreRecyclerAdapter<Chat, ChatHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Chat, ChatHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull ChatHolder chatHolder, int i, @NonNull Chat chat) {
                 chatHolder.setUser_id(chat.getUser_id(), chat);
@@ -201,9 +201,27 @@ public class ChatFragment extends Fragment {
                 return new ChatHolder(view);
             }
         };
+
+        firestoreRecyclerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeChanged(int positionStart, int itemCount) {
+                super.onItemRangeChanged(positionStart, itemCount);
+
+                int messageCount = firestoreRecyclerAdapter.getItemCount();
+                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (messageCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    recyclerViewChat.scrollToPosition(positionStart);
+                }
+            }
+        });
+
         firestoreRecyclerAdapter.startListening();
         recyclerViewChat.setAdapter(firestoreRecyclerAdapter);
-        recyclerViewChat.scrollToPosition(recyclerViewChat.computeVerticalScrollRange() - 1);
+
+
     }
 
     public void sendMessage(final String message) {

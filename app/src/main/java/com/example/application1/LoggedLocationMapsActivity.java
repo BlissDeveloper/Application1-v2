@@ -94,7 +94,7 @@ public class LoggedLocationMapsActivity extends AppCompatActivity implements OnM
                     }
                     LatLngBounds bounds = builder.build();
 
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 25, 25, 10);
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50, 50, 10);
                     mMap.animateCamera(cameraUpdate);
                 }
             }

@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -78,17 +80,19 @@ public class FragmentRegister extends Fragment {
         this.buttonLogin = (Button) this.mView.findViewById(R.id.buttonHaveAccount);
         this.buttonRegister = (Button) this.mView.findViewById(R.id.buttonRegister);
 
-        this.buttonLogin.setOnClickListener(new OnClickListener() {
+        buttonLogin.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 FragmentRegister.this.fragmentRegisterListener.changeV(FragmentRegister.this.fragmentLogin);
             }
         });
-        this.buttonRegister.setOnClickListener(new OnClickListener() {
+        buttonRegister.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-                if (FragmentRegister.this.hasValidInputs()) {
+                if (hasValidInputs()) {
                     progressBarRegister.setVisibility(View.VISIBLE);
+                    String email = editTextEmail.getText().toString();
+                    String password = editTextPassword.getText().toString();
                     clearAll();
-                    registerUser();
+                    registerUser(email, password);
                 }
             }
         });
@@ -155,7 +159,6 @@ public class FragmentRegister extends Fragment {
             return false;
         } else if (password2.equals(password_confirm)) {
             this.progressBarRegister.setVisibility(View.GONE);
-            registerUser();
             return true;
         } else {
             Toast.makeText(getActivity(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
@@ -163,28 +166,26 @@ public class FragmentRegister extends Fragment {
         }
     }
 
-    public void registerUser() {
-        this.email = this.editTextEmail.getText().toString();
-        this.password = this.editTextPassword.getText().toString();
-        this.mAuth.createUserWithEmailAndPassword(this.email, this.password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    FragmentRegister.this.mAuth.signInWithEmailAndPassword(FragmentRegister.this.email, FragmentRegister.this.password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                insertUserDataIntoFirestore();
-                                return;
-                            }
-                            Log.e("Avery", task.getException().getMessage());
-                            FragmentRegister.this.progressBarRegister.setVisibility(View.GONE);
-                        }
-                    });
-                    return;
+    public void registerUser(String email, String password) {
+        if (TextUtils.isEmpty(email)) {
+            Log.e("Avery", email);
+        } else if (TextUtils.isEmpty(password)) {
+            Log.e("Avery", password);
+        } else {
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        mAuth.signOut();
+                        Toast.makeText(getActivity(), "Account successfully registered!", Toast.LENGTH_SHORT).show();
+                        fragmentRegisterListener.changeV(new FragmentLogin());
+
+                    } else {
+                        Toast.makeText(getActivity(), task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
-                Log.d("Avery", task.getException().getMessage());
-                FragmentRegister.this.progressBarRegister.setVisibility(View.GONE);
-            }
-        });
+            });
+        }
     }
 
     public void insertUserDataIntoFirestore() {
@@ -202,6 +203,7 @@ public class FragmentRegister extends Fragment {
         map.put("last_name", lastName);
         map.put("user_id", this.currentUserID);
         map.put("name_initials", combinedInitials);
+
         this.userCollection.document(this.currentUserID).set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
