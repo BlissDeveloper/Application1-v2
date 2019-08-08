@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 public class Chat {
     String date, initials, message, time, user_id;

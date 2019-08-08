@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 public class Network_Log {
    String bssid, date, time, user_id, username;

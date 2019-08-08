@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_dark"
-    tools:context=".ImagePreviewActivity">
+    tools:context=".Activity.ImagePreviewActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarImagePreview"

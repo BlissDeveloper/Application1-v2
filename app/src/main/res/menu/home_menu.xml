@@ -9,4 +9,14 @@
         app:showAsAction="always">
     </item>
 
+    <item
+        android:id="@+id/menu_phone"
+        android:icon="@drawable/icon_phone"
+        android:title=""
+        app:showAsAction="always">
+
+    </item>
+
+
+
 </menu>

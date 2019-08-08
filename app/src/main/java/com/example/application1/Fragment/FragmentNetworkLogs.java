@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.application1.NetworkLogsViewHolder;
-import com.example.application1.Network_Log;
+import com.example.application1.Class.NetworkLogsViewHolder;
+import com.example.application1.Class.Network_Log;
 import com.example.application1.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;

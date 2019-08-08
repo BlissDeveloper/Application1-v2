@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 import java.io.Serializable;
 import java.io.SerializablePermission;

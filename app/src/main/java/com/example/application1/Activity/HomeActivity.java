@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,8 +8,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -27,8 +25,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
-import android.os.strictmode.CleartextNetworkViolation;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -40,17 +36,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Gallery;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.Api;
+import com.example.application1.Class.DateUtils;
+import com.example.application1.R;
+import com.example.application1.Class.UsefulClass;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -60,14 +52,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.LogDescriptor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -76,20 +64,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -319,6 +300,10 @@ public class HomeActivity extends AppCompatActivity {
                         .setNegativeButton("No", clickListener)
                         .show();
                 return true;
+            case R.id.menu_phone:
+                Intent intent = new Intent(HomeActivity.this, ARActivity.class);
+                startActivity(intent);
+                return true;
             default:
                 return false;
         }
@@ -426,41 +411,87 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void uploadImageToFirestore(final String uri) {
-        usersRef.document(currentUserID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        DateUtils dateUtils = new DateUtils();
+        final String dateStamp = dateUtils.getCurrentDateTimestamp();
+
+        usersRef.document(currentUserID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()) {
-                    String first_name = documentSnapshot.get("first_name").toString();
-                    String last_name = documentSnapshot.get("last_name").toString();
-                    String full_name = first_name + " " + last_name;
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        String first_name = documentSnapshot.get("first_name").toString();
+                        String last_name = documentSnapshot.get("last_name").toString();
+                        final String full_name = first_name + " " + last_name;
 
-                    Map<String, Object> map = new ArrayMap<>();
-                    map.put("user_id", currentUserID);
-                    map.put("image_url", uri);
-                    map.put("timestamp", getCurrentTimestamp());
-                    map.put("full_name", full_name);
+                        uploadedImagesRef.document(dateStamp).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()) {
+                                    //Meron nang group of images
+                                    //Getting the List of Maps
+                                    uploadedImagesRef.document(dateStamp).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                DocumentSnapshot d = task.getResult();
+                                                ArrayList<Map<String, Object>> arrayListOfMaps = new ArrayList<>();
+                                                arrayListOfMaps = (ArrayList<Map<String, Object>>) d.get("array_url");
 
-                    uploadedImagesRef.document().set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(HomeActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(HomeActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                                                Map<String, Object> mapInsideList = new ArrayMap<>();
+                                                mapInsideList.put("image_url", uri);
+                                                mapInsideList.put("full_name", full_name);
+
+                                                arrayListOfMaps.add(mapInsideList);
+
+                                                Map<String, Object> newMap = new ArrayMap<>();
+                                                newMap.put("array_url", arrayListOfMaps);
+
+
+                                                uploadedImagesRef.document(dateStamp).update(newMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            Toast.makeText(HomeActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                                Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    //Gawa ng bago
+                                    Map<String, Object> mapInsideArray = new ArrayMap<>();
+                                    mapInsideArray.put("image_url", uri);
+                                    mapInsideArray.put("full_name", full_name);
+                                    ArrayList<Map<String, Object>> arrayListOfMaps = new ArrayList<>();
+                                    arrayListOfMaps.add(mapInsideArray);
+
+                                    Map<String, Object> mapInsideDocument = new ArrayMap<>();
+                                    mapInsideDocument.put("datestamp", dateStamp);
+                                    mapInsideDocument.put("array_url", arrayListOfMaps);
+
+                                    uploadedImagesRef.document(dateStamp).set(mapInsideDocument).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(HomeActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                                }
                             }
-                            progressDialog.dismiss();
-                        }
-                    });
+                        });
+                    }
                 } else {
-                    Log.e("Avery", "Documentsnapshot does not exits");
-                    progressDialog.dismiss();
+                    Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("Avery", e.getMessage());
-                progressDialog.dismiss();
             }
         });
     }

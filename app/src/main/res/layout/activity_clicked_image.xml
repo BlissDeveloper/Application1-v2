@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/background_dark"
     android:backgroundTint="@android:color/background_dark"
-    tools:context=".ClickedImageActivity">
+    tools:context=".Activity.ClickedImageActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarClickedImage"

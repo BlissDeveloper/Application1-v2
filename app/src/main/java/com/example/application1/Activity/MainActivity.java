@@ -1,15 +1,15 @@
-package com.example.application1;
+package com.example.application1.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.Fragment;
 
 import com.example.application1.Fragment.FragmentLogin;
 import com.example.application1.Fragment.FragmentLogin.FragmentLoginListener;
 import com.example.application1.Fragment.FragmentRegister.FragmentRegisterListener;
+import com.example.application1.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity implements FragmentLoginListener, FragmentRegisterListener {

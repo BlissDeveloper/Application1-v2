@@ -1,8 +1,9 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.application1.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;

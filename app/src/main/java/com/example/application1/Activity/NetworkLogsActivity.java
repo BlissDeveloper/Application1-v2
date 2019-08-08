@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import com.example.application1.Fragment.FragmentNetworkLogs;
+import com.example.application1.R;
 
 public class NetworkLogsActivity extends AppCompatActivity {
     private Toolbar toolbarNetworkLogs;

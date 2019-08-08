@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 import android.Manifest;
 import android.content.Context;

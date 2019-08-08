@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.application1.Class.Image;
+import com.example.application1.R;
 
 public class ClickedImageActivity extends AppCompatActivity {
     private Image image;

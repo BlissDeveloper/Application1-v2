@@ -13,10 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.application1.ClickedImageActivity;
-import com.example.application1.Image;
-import com.example.application1.ImageViewHolder;
-import com.example.application1.MainActivity;
+import com.example.application1.Activity.ClickedImageActivity;
+import com.example.application1.Class.Image;
+import com.example.application1.Class.ImageViewHolder;
 import com.example.application1.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;

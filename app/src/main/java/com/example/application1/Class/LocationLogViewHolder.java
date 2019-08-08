@@ -1,10 +1,12 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.application1.R;
 
 public class LocationLogViewHolder extends RecyclerView.ViewHolder {
     public View mView;

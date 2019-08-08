@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Class;
 
 public class Location {
     String email, date, time, user_id;

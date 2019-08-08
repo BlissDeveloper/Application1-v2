@@ -1,4 +1,4 @@
-package com.example.application1;
+package com.example.application1.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.application1.Fragment.FragmentGallery;
+import com.example.application1.R;
 
 public class GalleryActivity extends AppCompatActivity {
     private Toolbar toolbarGallery;
