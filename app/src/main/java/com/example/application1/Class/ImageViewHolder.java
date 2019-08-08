@@ -25,7 +25,7 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
 
         recyclerViewImageGroup = itemView.findViewById(R.id.recyclerViewImageGroup);
-
+        textViewImageGroupDate = itemView.findViewById(R.id.textViewImageGroupDate);
         this.context = context;
     }
 
@@ -38,9 +38,16 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
     }
 
     private static class ImageGroupViewHolder extends RecyclerView.ViewHolder {
+        List<Map<String, Object>> mapList;
+        ImageView imageViewGalleryImage;
+        TextView textViewGalleryUsername;
 
         public ImageGroupViewHolder(@NonNull View itemView, List<Map<String, Object>> list) {
             super(itemView);
+
+            mapList = list;
+            imageViewGalleryImage = itemView.findViewById(R.id.imageViewGalleryImage);
+            textViewGalleryUsername = itemView.findViewById(R.id.textViewGalleryUsername);
         }
     }
 }
