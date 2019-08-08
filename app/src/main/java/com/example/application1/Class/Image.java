@@ -2,50 +2,35 @@ package com.example.application1.Class;
 
 import java.io.Serializable;
 import java.io.SerializablePermission;
+import java.util.List;
+import java.util.Map;
 
 public class Image implements Serializable {
-    String full_name, image_url, timestamo, user_id;
+    List<Map<String, Object>> array_url;
+    String datestamp;
 
     public Image() {
 
     }
 
-    public Image(String full_name, String image_url, String timestamo, String user_id) {
-        this.full_name = full_name;
-        this.image_url = image_url;
-        this.timestamo = timestamo;
-        this.user_id = user_id;
+    public Image(List<Map<String, Object>> array_url, String datestamp) {
+        this.array_url = array_url;
+        this.datestamp = datestamp;
     }
 
-    public String getFull_name() {
-        return full_name;
+    public List<Map<String, Object>> getArray_url() {
+        return array_url;
     }
 
-    public void setFull_name(String full_name) {
-        this.full_name = full_name;
+    public void setArray_url(List<Map<String, Object>> array_url) {
+        this.array_url = array_url;
     }
 
-    public String getImage_url() {
-        return image_url;
+    public String getDatestamp() {
+        return datestamp;
     }
 
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
-    }
-
-    public String getTimestamo() {
-        return timestamo;
-    }
-
-    public void setTimestamo(String timestamo) {
-        this.timestamo = timestamo;
-    }
-
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
+    public void setDatestamp(String datestamp) {
+        this.datestamp = datestamp;
     }
 }

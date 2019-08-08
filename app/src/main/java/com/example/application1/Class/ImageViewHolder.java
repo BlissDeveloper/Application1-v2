@@ -12,34 +12,35 @@ import com.example.application1.R;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
+import java.util.Map;
+
 public class ImageViewHolder extends RecyclerView.ViewHolder {
     private Context context;
 
-    public ImageView imageViewGalleryImage;
-    public TextView textViewGalleryUsername;
+    public TextView textViewImageGroupDate;
+    public RecyclerView recyclerViewImageGroup;
 
     public ImageViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
 
+        recyclerViewImageGroup = itemView.findViewById(R.id.recyclerViewImageGroup);
+
         this.context = context;
-
-        imageViewGalleryImage = itemView.findViewById(R.id.imageViewGalleryImage);
-        textViewGalleryUsername = itemView.findViewById(R.id.textViewGalleryUsername);
     }
 
-    public void setFull_name(String full_name) {
-        textViewGalleryUsername.setText(full_name);
-    }
-
-    public void setImage_url(String image_url) {
-        Glide.with(context).load(image_url).diskCacheStrategy(DiskCacheStrategy.ALL).into(imageViewGalleryImage);
-    }
-
-    public void setTimestamo(String timestamo) {
+    public void setArray_url(List<Map<String, Object>> array_url) {
 
     }
 
-    public void setUser_id(String user_id) {
+    public void setDatestamp(String datestamp) {
 
+    }
+
+    private static class ImageGroupViewHolder extends RecyclerView.ViewHolder {
+
+        public ImageGroupViewHolder(@NonNull View itemView, List<Map<String, Object>> list) {
+            super(itemView);
+        }
     }
 }

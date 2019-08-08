@@ -56,7 +56,7 @@ public class FragmentGallery extends Fragment {
         recyclerViewGallery.setLayoutManager(gridLayoutManager);
         recyclerViewGallery.setHasFixedSize(true);
 
-        loadImages();
+        //loadImages();
 
         return mView;
     }
@@ -91,5 +91,24 @@ public class FragmentGallery extends Fragment {
         firestoreRecyclerAdapter.startListening();
         recyclerViewGallery.setAdapter(firestoreRecyclerAdapter);
     }
+
+    public void load() {
+        Query query = imagesRef;
+
+        FirestoreRecyclerOptions<Image> options = new FirestoreRecyclerOptions.Builder<Image>().setQuery(query, Image.class).build();
+        FirestoreRecyclerAdapter<Image, ImageViewHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Image, ImageViewHolder>() {
+            @Override
+            protected void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i, @NonNull Image image) {
+
+            }
+
+            @NonNull
+            @Override
+            public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return null;
+            }
+        };
+    }
+
 
 }
