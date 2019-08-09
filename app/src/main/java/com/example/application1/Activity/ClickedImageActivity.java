@@ -10,10 +10,11 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.application1.Class.Image;
+import com.example.application1.Class.ImageItself;
 import com.example.application1.R;
 
 public class ClickedImageActivity extends AppCompatActivity {
-    private Image image;
+    private ImageItself image;
 
     private ImageView imageViewClickedImage;
     private Toolbar toolbarClickedImage;
@@ -31,7 +32,7 @@ public class ClickedImageActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (getIntent().hasExtra("image")) {
-            image = (Image) getIntent().getSerializableExtra("image");
+            image = (ImageItself) getIntent().getSerializableExtra("image");
         }
     }
 
@@ -53,6 +54,8 @@ public class ClickedImageActivity extends AppCompatActivity {
     }
 
     public void loadImage() {
+        // String image_url = image.getImage_url();
+        //        //Glide.with(ClickedImageActivity.this).load(image_url).into(imageViewClickedImage);
         String image_url = image.getImage_url();
         Glide.with(ClickedImageActivity.this).load(image_url).into(imageViewClickedImage);
     }

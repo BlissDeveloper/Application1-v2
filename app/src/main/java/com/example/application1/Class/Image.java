@@ -6,31 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Serializable {
-    List<Map<String, Object>> array_url;
-    String datestamp;
+    String date_stamp;
 
     public Image() {
 
     }
 
-    public Image(List<Map<String, Object>> array_url, String datestamp) {
-        this.array_url = array_url;
-        this.datestamp = datestamp;
+    public Image(String date_stamp) {
+        this.date_stamp = date_stamp;
     }
 
-    public List<Map<String, Object>> getArray_url() {
-        return array_url;
+    public String getDate_stamp() {
+        return date_stamp;
     }
 
-    public void setArray_url(List<Map<String, Object>> array_url) {
-        this.array_url = array_url;
-    }
-
-    public String getDatestamp() {
-        return datestamp;
-    }
-
-    public void setDatestamp(String datestamp) {
-        this.datestamp = datestamp;
+    public void setDate_stamp(String date_stamp) {
+        this.date_stamp = date_stamp;
     }
 }

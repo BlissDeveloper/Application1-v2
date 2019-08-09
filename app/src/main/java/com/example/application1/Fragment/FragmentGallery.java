@@ -7,8 +7,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +32,9 @@ import com.google.firebase.firestore.Query;
 public class FragmentGallery extends Fragment {
     private FirebaseAuth mAuth;
     private String currentUserID;
+
     private CollectionReference imagesRef;
+    private CollectionReference imagesThemselvesRef;
 
     private View mView;
     private RecyclerView recyclerViewGallery;
@@ -49,66 +53,39 @@ public class FragmentGallery extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         currentUserID = mAuth.getCurrentUser().getUid();
         imagesRef = FirebaseFirestore.getInstance().collection("Uploaded_Images");
+        imagesThemselvesRef = FirebaseFirestore.getInstance().collection("Images");
 
         recyclerViewGallery = mView.findViewById(R.id.recyclerViewGallery);
-        gridLayoutManager = new GridLayoutManager(getActivity(), 3);
 
-        recyclerViewGallery.setLayoutManager(gridLayoutManager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), RecyclerView.VERTICAL, false);
+        recyclerViewGallery.setLayoutManager(linearLayoutManager);
         recyclerViewGallery.setHasFixedSize(true);
 
         //loadImages();
+        load();
 
         return mView;
     }
 
-    public void loadImages() {
-        Query query = imagesRef.orderBy("timestamp", Query.Direction.ASCENDING);
-
-        FirestoreRecyclerOptions<Image> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Image>().setQuery(query, Image.class).build();
-        FirestoreRecyclerAdapter<Image, ImageViewHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Image, ImageViewHolder>(firestoreRecyclerOptions) {
-            @Override
-            protected void onBindViewHolder(@NonNull ImageViewHolder holder, int i, @NonNull final Image model) {
-                holder.setImage_url(model.getImage_url());
-                holder.setFull_name(model.getFull_name());
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(getActivity(), ClickedImageActivity.class);
-                        intent.putExtra("image", model);
-                        startActivity(intent);
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.all_images_layout, parent, false);
-                return new ImageViewHolder(view, getActivity());
-            }
-        };
-        firestoreRecyclerAdapter.startListening();
-        recyclerViewGallery.setAdapter(firestoreRecyclerAdapter);
-    }
 
     public void load() {
         Query query = imagesRef;
 
         FirestoreRecyclerOptions<Image> options = new FirestoreRecyclerOptions.Builder<Image>().setQuery(query, Image.class).build();
-        FirestoreRecyclerAdapter<Image, ImageViewHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Image, ImageViewHolder>() {
+        FirestoreRecyclerAdapter<Image, ImageViewHolder> firestoreRecyclerAdapter = new FirestoreRecyclerAdapter<Image, ImageViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull ImageViewHolder imageViewHolder, int i, @NonNull Image image) {
-
+                imageViewHolder.setDatestamp(image.getDate_stamp());
             }
 
             @NonNull
             @Override
             public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                return null;
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.all_grouped_images_layout, parent, false);
+                return new ImageViewHolder(view, getActivity());
             }
         };
+        recyclerViewGallery.setAdapter(firestoreRecyclerAdapter);
+        firestoreRecyclerAdapter.startListening();
     }
-
-
 }

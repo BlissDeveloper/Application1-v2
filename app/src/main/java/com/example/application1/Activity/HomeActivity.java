@@ -78,8 +78,10 @@ public class HomeActivity extends AppCompatActivity {
     private CollectionReference locationsRef;
     private CollectionReference networksRef;
     private StorageReference imagesRef;
+
     private CollectionReference usersRef;
     private CollectionReference uploadedImagesRef;
+    private CollectionReference imagesThemselvesRef;
 
     private ImageView imageViewCamera;
     private ImageView imageViewChat;
@@ -134,6 +136,7 @@ public class HomeActivity extends AppCompatActivity {
         imagesRef = FirebaseStorage.getInstance().getReference().child("Images");
         usersRef = FirebaseFirestore.getInstance().collection("Users");
         uploadedImagesRef = FirebaseFirestore.getInstance().collection("Uploaded_Images");
+        imagesThemselvesRef = FirebaseFirestore.getInstance().collection("Images");
 
         toolbarHome = findViewById(R.id.toolbarHome);
         setSupportActionBar(toolbarHome);
@@ -428,60 +431,17 @@ public class HomeActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 if (documentSnapshot.exists()) {
-                                    //Meron nang group of images
-                                    //Getting the List of Maps
-                                    uploadedImagesRef.document(dateStamp).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                DocumentSnapshot d = task.getResult();
-                                                ArrayList<Map<String, Object>> arrayListOfMaps = new ArrayList<>();
-                                                arrayListOfMaps = (ArrayList<Map<String, Object>>) d.get("array_url");
-
-                                                Map<String, Object> mapInsideList = new ArrayMap<>();
-                                                mapInsideList.put("image_url", uri);
-                                                mapInsideList.put("full_name", full_name);
-
-                                                arrayListOfMaps.add(mapInsideList);
-
-                                                Map<String, Object> newMap = new ArrayMap<>();
-                                                newMap.put("array_url", arrayListOfMaps);
-
-
-                                                uploadedImagesRef.document(dateStamp).update(newMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            Toast.makeText(HomeActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
-                                                        } else {
-                                                            Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                });
-                                            } else {
-                                                Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
+                                    uploadImage(uri, full_name, dateStamp);
                                 } else {
-                                    //Gawa ng bago
-                                    Map<String, Object> mapInsideArray = new ArrayMap<>();
-                                    mapInsideArray.put("image_url", uri);
-                                    mapInsideArray.put("full_name", full_name);
-                                    ArrayList<Map<String, Object>> arrayListOfMaps = new ArrayList<>();
-                                    arrayListOfMaps.add(mapInsideArray);
-
-                                    Map<String, Object> mapInsideDocument = new ArrayMap<>();
-                                    mapInsideDocument.put("datestamp", dateStamp);
-                                    mapInsideDocument.put("array_url", arrayListOfMaps);
-
-                                    uploadedImagesRef.document(dateStamp).set(mapInsideDocument).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    Map<String, Object> dateStampMap = new ArrayMap<>();
+                                    dateStampMap.put("date_stamp", dateStamp);
+                                    uploadedImagesRef.document(dateStamp).set(dateStampMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(HomeActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                                                uploadImage(uri, full_name, dateStamp);
                                             } else {
-                                                Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                                Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -491,6 +451,25 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    public void uploadImage(final String uri, final String full_name, final String dateStamp) {
+        //Meron ng datestimp identifier
+        Map<String, Object> imageMap = new ArrayMap<>();
+        imageMap.put("image_url", uri);
+        imageMap.put("full_name", full_name);
+        imageMap.put("date_stamp", dateStamp);
+
+        imagesThemselvesRef.document().set(imageMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(HomeActivity.this, "Image successfully uploaded!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(HomeActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
